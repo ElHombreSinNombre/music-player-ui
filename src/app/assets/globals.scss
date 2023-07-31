@@ -1,0 +1,60 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+$layout-color: #1d1e20;
+$input-color: #1a1a1a;
+$text-color: #767676;
+
+body {
+  background: rgb(0, 0, 0);
+}
+
+::-webkit-scrollbar {
+  width: 0.375em;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-white;
+  border-radius: 0.625em;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-black;
+  border-radius: 0.625em;
+}
+
+@layer base {
+  .border-color {
+    border-color: $layout-color;
+  }
+  .bg-color {
+    background-color: $layout-color;
+  }
+  .bg-input-color {
+    background-color: $input-color;
+  }
+  .text-color {
+    color: $text-color;
+  }
+  .input {
+    @apply w-full bg-input-color rounded-md text-color outline-none;
+  }
+  tbody td,
+  thead td {
+    @apply py-4 px-4;
+  }
+  .duration {
+    width: 26em;
+  }
+
+  input[type='range'] {
+    accent-color: white;
+  }
+
+  @layer components {
+    .spinner {
+      @apply h-5 w-5 animate-spin border-4 border-current border-solid rounded-full border-r-transparent;
+    }
+  }
+}

@@ -4,7 +4,7 @@ Technologies
 
 - **[React](https://react.dev/)**
 - **[Tailwind](https://tailwindcss.com/)**
-- **[Redux](https://redux.js.org/)**
+- **[Zustand](https://zustand-demo.pmnd.rs/)**
 - **[NextJS](https://nextjs.org/)**
 - **[Framer](https://www.framer.com/motion/)**
 

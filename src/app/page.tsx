@@ -1,57 +1,96 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import Input from './components/Input'
-import { searchPodcastByName } from './endpoints/podcast'
-import { Podcast } from './models/podcast'
 import Table from './components/Table'
 import Spinner from './components/Spinner'
+import Toast from './components/Toast'
+import { useStore } from './store/player'
+import ArrowIcon from './components/Icons/Arrow'
+import debounce from './utils/debounce'
+import { motion } from 'framer-motion'
 
 export default function Home() {
-  // Estado local del input
-  const [value, setValue] = useState<string>('')
-  // Estado local del array de podcast
-  const [podcasts, setPodcasts] = useState<Podcast[]>([])
-  // Estado local del loading
+  const [name, setName] = useState<string | null>(null)
   const [loading, setLoading] = useState<boolean>(false)
+  const [error, setError] = useState<boolean>(false)
+  const [offset, setOffset] = useState<number>(0)
+  const { tracks, fetchTracks } = useStore((state) => ({
+    tracks: state.tracks,
+    fetchTracks: state.fetchTracks
+  }))
 
-  // Si hay algún valor el input cargamos el loading y cuando se setea el estado del podcast, lo volvemos a poner a false
-  useEffect(() => {
-    if (value) {
-      setLoading(true)
-      setTimeout(() => {
-        searchPodcastByName(value).then((data: Podcast[]) => {
-          setPodcasts(data)
-        })
+  const getTracks = ({ offset }: { offset: number }) => {
+    if (name) {
+      const debouncedFetch = debounce(() => {
+        setLoading(true)
+        setError(false)
+        fetchTracks({ name, offset })
+          .catch(() => {
+            setName('')
+            setError(true)
+          })
+          .finally(() => {
+            setLoading(false)
+            setError(false)
+          })
       }, 300)
-    } else {
-      setPodcasts([])
+      debouncedFetch()
     }
-    setLoading(false)
-  }, [value])
+  }
 
-  /* 
-    Cargamos los componentes y enviamos los props
-    Pintamos la vista
-  */
+  useEffect(() => {
+    getTracks({ offset })
+  }, [name, offset])
+
+  const trackTable = useMemo(() => {
+    if (loading) {
+      return (
+        <section className='flex justify-center items-center h-screen'>
+          <Spinner backgroundColor='text-indigo-500' />
+        </section>
+      )
+    } else {
+      return <Table tracks={tracks} />
+    }
+  }, [loading, tracks])
+
   return (
     <>
       <Input
         full
         icon
-        name='Podcast'
-        placeholder='Podcast'
+        name='Track'
+        placeholder='Track'
         onChange={(value) => {
-          setValue(value.toString())
+          setName(value.toString())
+          setOffset(0)
         }}
       />
-      {value && podcasts?.length > 0 ? (
-        <Table podcasts={podcasts} />
-      ) : loading ? (
-        <section className='flex justify-center items-center h-screen'>
-          <Spinner backgroundColor='text-indigo-500' />
-        </section>
-      ) : null}
+      {error && <Toast text='Ha ocurrido un error' />}
+      {trackTable}
+      {tracks && (
+        <motion.div className='flex justify-center items-center'>
+          <motion.div
+            whileHover={{
+              y: [-5, 5],
+              transition: {
+                repeat: Infinity,
+                duration: 0.5,
+                ease: 'easeInOut',
+                repeatType: 'mirror'
+              }
+            }}
+          >
+            <ArrowIcon
+              className='text-color -rotate-90 cursor-pointer hover:transition-colors duration-300 hover:text-white'
+              onClick={() => setOffset((prev) => prev + 10)}
+            >
+              More
+            </ArrowIcon>
+          </motion.div>
+        </motion.div>
+      )}
     </>
   )
 }

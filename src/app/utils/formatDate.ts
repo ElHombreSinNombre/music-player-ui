@@ -1,6 +1,10 @@
-// Funciones auxiliares para convertir milisegundos en una fecha
-
-const milisecondsToDate = (hasYear: boolean, date: number) => {
+const milisecondsToDate = ({
+  hasYear,
+  date
+}: {
+  hasYear: boolean
+  date: number
+}) => {
   if (hasYear) {
     return new Date(date).toLocaleString(navigator.language, {
       year: 'numeric',

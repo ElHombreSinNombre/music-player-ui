@@ -1,8 +1,7 @@
 'use client'
 import './assets/globals.scss'
 
-import { Provider } from 'react-redux'
-import store from './store/store'
+import React from 'react'
 import Player from './components/Player'
 import Head from 'next/head'
 
@@ -11,13 +10,8 @@ export default function RootLayout({
 }: {
   children: React.ReactNode
 }) {
-  /* 
-  Create-react-app está deprecado, hemos usado Nuxt, más info aqui https://react.dev/learn/start-a-new-react-project
-  Hemos agregado Redux para tener siempre el estado del podcast seleccionado
-  Pintamos la vista
-  */
   return (
-    <Provider store={store}>
+    <>
       <Head>
         <title>Music player</title>
         <link rel='icon' type='image/icon' href='favicon.ico' />
@@ -32,6 +26,6 @@ export default function RootLayout({
           <Player />
         </body>
       </html>
-    </Provider>
+    </>
   )
 }

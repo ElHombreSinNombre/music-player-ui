@@ -1,4 +1,4 @@
-# Music player UI
+# Music player
 
 Technologies
 

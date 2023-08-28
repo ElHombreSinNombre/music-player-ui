@@ -18,8 +18,8 @@ interface TableProps {
 }
 export default function Table({ tracks, showTitle = false }: TableProps) {
   const [currentSort, setCurrentSort] = useState<string | null>(null)
-  const [isAscending, setIsAscending] = useState(false)
-  const [toogleSort, setToogleSort] = useState(false)
+  const [isAscending, setIsAscending] = useState<boolean>(false)
+  const [toogleSort, setToogleSort] = useState<boolean>(false)
   const [filteredtracks, setFilteredtracks] = useState<Track[] | null>(tracks)
   const [changePlaying, setTrack, track] = useStore((state) => [
     state.changePlaying,
@@ -58,6 +58,7 @@ export default function Table({ tracks, showTitle = false }: TableProps) {
 
   const pausePlay = (track: Track) => {
     selectTrack(track)
+    //Error aqui
     changePlaying(!track.is_playing)
   }
 
@@ -189,7 +190,7 @@ export default function Table({ tracks, showTitle = false }: TableProps) {
                     }`}
                   >
                     {options.name === COLUMNS.COLUMN5 ? (
-                      <ClockIcon />
+                      <ClockIcon>{COLUMNS.COLUMN5}</ClockIcon>
                     ) : (
                       options.name
                     )}

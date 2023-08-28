@@ -67,7 +67,7 @@ export default function Home() {
           setOffset(0)
         }}
       />
-      {error && <Toast text='Ha ocurrido un error' />}
+      {error && <Toast text='An error has occurred' />}
       {trackTable}
       {tracks && (
         <motion.div className='flex justify-center items-center'>

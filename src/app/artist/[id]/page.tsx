@@ -103,7 +103,7 @@ export default function Podcast() {
           alt='Track'
         />
 
-        {error && <Toast text='Ha ocurrido un error' />}
+        {error && <Toast text='An error has occurred' />}
         {trackTable}
       </section>
     </>

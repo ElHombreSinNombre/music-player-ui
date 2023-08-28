@@ -1,7 +1,10 @@
+import { Children, ReactNode } from 'react'
+
 interface ClockProps {
   width?: number
   height?: number
   className?: string
+  children?: ReactNode
   onClick?: () => void
 }
 
@@ -9,6 +12,7 @@ const ClockIcon = ({
   width = 24,
   height = 24,
   className,
+  children,
   onClick
 }: ClockProps) => (
   <svg
@@ -36,7 +40,7 @@ const ClockIcon = ({
       strokeLinecap='round'
       strokeLinejoin='round'
     ></path>
-    <title>Clock</title>
+    <title>{children}</title>
   </svg>
 )
 

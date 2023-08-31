@@ -1,7 +1,6 @@
 'use client'
 import './assets/globals.scss'
 
-import React from 'react'
 import Player from './components/Player'
 import Head from 'next/head'
 

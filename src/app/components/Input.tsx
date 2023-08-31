@@ -7,7 +7,7 @@ interface InputProps {
   onChange?: (value: string | number) => void
   icon?: boolean
   full?: boolean
-  type?: string
+  type?: 'text' | 'range'
   value?: number | string
   max?: number
   min?: number
@@ -38,12 +38,11 @@ export default function Input({
         </article>
       )}
       <input
+        data-testid='input'
         title={title}
         type={type}
         onChange={(event) => {
-          const value =
-            type === 'number' ? event.target.valueAsNumber : event.target.value
-          change(value)
+          change(event.target.value)
         }}
         name={name}
         value={value}

@@ -7,13 +7,15 @@ interface State {
   tracks: Track[] | null
   setTracks: (tracks: Track[] | null) => void
   setTrack: (track: Track | null) => void
-  changePlaying: (playing: boolean) => void
+  changePlaying: () => void
   fetchTracks: ({
     name,
-    offset
+    more,
+    limit
   }: {
     name: string
-    offset: number
+    more: boolean
+    limit: number
   }) => Promise<void>
   fetchSongsById: ({
     name,
@@ -33,43 +35,42 @@ export const useStore = create<State>((set, get) => ({
   setTracks: (tracks) => {
     set({ tracks })
   },
-  changePlaying: (playing) => {
+  changePlaying: () => {
     const { track } = get()
     const { tracks } = get()
-    if (tracks) {
-      const needsUpdate = Object.values(tracks).some(
-        (track) => track.is_playing !== false
+    if (tracks && track) {
+      const updatedTracks = tracks.map((allTracks) => {
+        if (allTracks.id === track.id) {
+          return { ...allTracks, is_playing: !track.is_playing }
+        } else {
+          return { ...allTracks, is_playing: false }
+        }
+      })
+      set(() => ({
+        tracks: updatedTracks
+      }))
+      const trackIsTrue = updatedTracks.find(
+        (updatedTrack) => updatedTrack.is_playing === true
       )
-      if (needsUpdate) {
-        const updatedTracks = tracks.map((track) => ({
-          ...track,
-          is_playing: false
+      if (trackIsTrue) {
+        set(() => ({
+          track: trackIsTrue
         }))
-        set({ tracks: updatedTracks })
       }
-    }
-    if (track) {
-      const updatedTrack = { ...track, is_playing: playing }
-      set({ track: updatedTrack })
     }
   },
   fetchTracks: async ({
     name,
-    offset,
+    more,
     limit
   }: {
     name: string
-    offset: number
+    more: boolean
     limit: number
   }) => {
-    await searchTrackByName({ name, offset, limit }).then((data: Track[]) => {
-      set((prev) => ({
-        tracks: prev.tracks
-          ? offset === 0
-            ? data
-            : [...prev.tracks, ...data]
-          : data
-      }))
+    await searchTrackByName({ name, more, limit }).then((tracks: Track[]) => {
+      console.log(tracks)
+      set({ tracks })
     })
   },
   fetchSongsById: async ({ name, id }: { name: string; id: string }) => {

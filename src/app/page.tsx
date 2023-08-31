@@ -14,18 +14,23 @@ export default function Home() {
   const [name, setName] = useState<string | null>(null)
   const [loading, setLoading] = useState<boolean>(false)
   const [error, setError] = useState<boolean>(false)
-  const [offset, setOffset] = useState<number>(0)
   const { tracks, fetchTracks } = useStore((state) => ({
     tracks: state.tracks,
     fetchTracks: state.fetchTracks
   }))
 
-  const getTracks = ({ offset }: { offset: number }) => {
+  const getTracks = ({
+    limit,
+    more = false
+  }: {
+    limit: number
+    more: boolean
+  }) => {
     if (name) {
       const debouncedFetch = debounce(() => {
         setLoading(true)
         setError(false)
-        fetchTracks({ name, offset })
+        fetchTracks({ name, more, limit })
           .catch(() => {
             setName('')
             setError(true)
@@ -40,10 +45,10 @@ export default function Home() {
   }
 
   useEffect(() => {
-    getTracks({ offset })
-  }, [name, offset])
+    getTracks({ more: false })
+  }, [name])
 
-  const trackTable = useMemo(() => {
+  const TrackTable = useMemo(() => {
     if (loading) {
       return (
         <section className='flex justify-center items-center h-screen'>
@@ -51,9 +56,9 @@ export default function Home() {
         </section>
       )
     } else {
-      return <Table tracks={tracks} />
+      return <Table />
     }
-  }, [loading, tracks])
+  }, [loading])
 
   return (
     <>
@@ -64,11 +69,10 @@ export default function Home() {
         placeholder='Track'
         onChange={(value) => {
           setName(value.toString())
-          setOffset(0)
         }}
       />
       {error && <Toast text='An error has occurred' />}
-      {trackTable}
+      {TrackTable}
       {tracks && (
         <motion.div className='flex justify-center items-center'>
           <motion.div
@@ -84,7 +88,7 @@ export default function Home() {
           >
             <ArrowIcon
               className='text-color -rotate-90 cursor-pointer hover:transition-colors duration-300 hover:text-white'
-              onClick={() => setOffset((prev) => prev + 10)}
+              onClick={() => getTracks({ more: true })}
             >
               More
             </ArrowIcon>

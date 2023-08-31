@@ -17,9 +17,10 @@ export default function Podcast() {
   const [name, setName] = useState<string | null>(null)
   const [error, setError] = useState<boolean>(false)
   const [loading, setLoading] = useState<boolean>(false)
-  const [tracks, setTracks] = useState<Track[]>([])
+  const [tracks, setTracks] = useState<Track[] | null>(null)
   const { track, fetchSongsById } = useStore((state) => ({
     track: state.track,
+    setTrack: state.setTrack,
     fetchSongsById: state.fetchSongsById
   }))
 
@@ -43,10 +44,10 @@ export default function Podcast() {
 
   useEffect(() => {
     if (track) {
-      const id = track.artists[0].id
+      const id = track.artists?.at(0)?.id
       getSongs({ id })
     }
-  }, [track])
+  }, [])
 
   useEffect(() => {
     if (name) {
@@ -57,7 +58,7 @@ export default function Podcast() {
     }
   }, [name])
 
-  const trackTable = useMemo(() => {
+  const TrackTable = useMemo(() => {
     if (loading) {
       return (
         <section className='flex justify-center items-center h-screen'>
@@ -65,7 +66,7 @@ export default function Podcast() {
         </section>
       )
     } else {
-      return <Table tracks={tracks} showTitle />
+      return <Table showTitle customTracks={tracks} />
     }
   }, [loading, tracks])
 
@@ -97,14 +98,14 @@ export default function Podcast() {
           title='Track'
           loading='lazy'
           className='rounded-lg'
-          src='/thubmnail.png'
+          src='/music.webp'
           width={1200}
           height={280}
           alt='Track'
         />
 
         {error && <Toast text='An error has occurred' />}
-        {trackTable}
+        {TrackTable}
       </section>
     </>
   )

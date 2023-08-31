@@ -13,19 +13,21 @@ import ArrowIcon from './Icons/Arrow'
 import { useStore } from '../store/player'
 
 interface TableProps {
-  tracks: Track[] | null
   showTitle?: boolean
+  customTracks?: Track[] | null
 }
-export default function Table({ tracks, showTitle = false }: TableProps) {
+export default function Table({ customTracks, showTitle = false }: TableProps) {
   const [currentSort, setCurrentSort] = useState<string | null>(null)
   const [isAscending, setIsAscending] = useState<boolean>(false)
-  const [toogleSort, setToogleSort] = useState<boolean>(false)
-  const [filteredtracks, setFilteredtracks] = useState<Track[] | null>(tracks)
-  const [changePlaying, setTrack, track] = useStore((state) => [
+  const [toggleSort, settoggleSort] = useState<boolean>(false)
+  const [filteredTracks, setfilteredTracks] = useState<Track[] | null>(null)
+  const [changePlaying, setTrack, track, tracks] = useStore((state) => [
     state.changePlaying,
     state.setTrack,
-    state.track
+    state.track,
+    state.tracks
   ])
+  const allTracks = customTracks ? customTracks : tracks
 
   const COLUMNS = Object.freeze({
     COLUMN1: '#',
@@ -51,60 +53,56 @@ export default function Table({ tracks, showTitle = false }: TableProps) {
       name: COLUMNS.COLUMN5
     }
   ]
+  useEffect(() => {
+    setfilteredTracks(allTracks)
+  }, [customTracks, tracks, track])
 
   useEffect(() => {
-    if (tracks) setFilteredtracks(tracks)
-  }, [tracks])
-
-  const pausePlay = (track: Track) => {
-    selectTrack(track)
-    //Error aqui
-    changePlaying(!track.is_playing)
-  }
-
-  const selectTrack = (selected: Track) => {
-    setTrack(selected)
-  }
+    if (allTracks) {
+      setTrack(allTracks.at(0)!)
+    }
+  }, [allTracks])
 
   const sortBy = (value: string) => {
-    if (tracks) {
-      setCurrentSort(value)
-      setIsAscending(!isAscending)
-      const sortedtracks = [...tracks].sort((a, b) => {
-        if (value === COLUMNS.COLUMN1) {
-          return a.name.localeCompare(b.name)
-        } else if (value === COLUMNS.COLUMN2) {
-          return a.album.name.localeCompare(b.album.name)
-        } else if (value === COLUMNS.COLUMN3) {
-          return a.album.release_date - b.album.release_date
-        } else {
-          return a.duration_ms - b.duration_ms
-        }
-      })
-      setFilteredtracks(isAscending ? sortedtracks : sortedtracks.reverse())
-    }
+    setCurrentSort(value)
+    setIsAscending(!isAscending)
+    const sortedtracks = [...tracks!].sort((a, b) => {
+      if (value === COLUMNS.COLUMN1) {
+        return a.name.localeCompare(b.name)
+      } else if (value === COLUMNS.COLUMN2) {
+        return a.album.name.localeCompare(b.album.name)
+      } else if (value === COLUMNS.COLUMN3) {
+        return a.album.release_date - b.album.release_date
+      } else {
+        return a.duration_ms - b.duration_ms
+      }
+    })
+    setfilteredTracks(isAscending ? sortedtracks : sortedtracks.reverse())
+  }
+
+  const pausePlay = (track: Track) => {
+    setTrack(track)
+    changePlaying()
   }
 
   const SortMenu = () => {
     return (
       <motion.ul
         initial={{ opacity: 0 }}
-        animate={{ opacity: toogleSort ? 1 : 0 }}
+        animate={{ opacity: 1 }}
         transition={{ duration: 0.5 }}
-        exit={{ opacity: 0 }}
-        className='absolute right-0 mt-40 py-4 px-4 bg-color border-lg'
+        className='absolute right-0 mt-40 py-4 px-4 bg-color border-lg z-10'
       >
         {options.slice(1).map((option) => (
           <motion.li
             className='text-white hover:text-color cursor-pointer'
             key={option.id}
             onClick={() => {
-              setToogleSort(false)
+              settoggleSort(false)
               sortBy(option.name)
             }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
             transition={{ duration: 0.5 }}
           >
             {option.name}
@@ -116,7 +114,7 @@ export default function Table({ tracks, showTitle = false }: TableProps) {
 
   return (
     <>
-      {filteredtracks && filteredtracks?.length > 0 && (
+      {filteredTracks && filteredTracks?.length > 0 && (
         <>
           <article className='relative flex items-center justify-between space-x-2'>
             {showTitle && track && (
@@ -148,14 +146,14 @@ export default function Table({ tracks, showTitle = false }: TableProps) {
               title='Sort by'
               className='flex items-center gap-2 ml-auto text-white cursor-pointer'
               onClick={() => {
-                setToogleSort(!toogleSort)
+                settoggleSort(!toggleSort)
               }}
             >
               <SearchIcon />
               <p className='text-base'>Order by</p>
               <ArrowIcon
                 className={
-                  toogleSort
+                  toggleSort
                     ? '-rotate-90 transition-transform duration-300'
                     : 'transition-transform duration-300 rotate-90'
                 }
@@ -163,104 +161,128 @@ export default function Table({ tracks, showTitle = false }: TableProps) {
                 Back
               </ArrowIcon>
             </article>
-            <SortMenu />
+            {toggleSort && <SortMenu />}
           </article>
           <motion.table
+            data-testid='table'
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 1 }}
+            transition={{ duration: 0.5 }}
             className='text-color w-full overflow-x-auto'
           >
             <thead>
               <tr>
-                {options.map((options) => (
+                {options.map((option) => (
                   <td
-                    key={options.id}
+                    key={option.id}
                     onClick={() => {
-                      options.name !== COLUMNS.COLUMN1
-                        ? sortBy(options.name)
+                      option.name !== COLUMNS.COLUMN1
+                        ? sortBy(option.name)
                         : null
                     }}
                     className={`text-${
-                      currentSort === options.name ? 'white' : 'color'
+                      currentSort === option.name ? 'white' : 'color'
                     }  ${
-                      options.name !== COLUMNS.COLUMN1
+                      option.name !== COLUMNS.COLUMN1
                         ? 'hover:text-white cursor-pointer '
                         : null
                     }`}
                   >
-                    {options.name === COLUMNS.COLUMN5 ? (
-                      <ClockIcon>{COLUMNS.COLUMN5}</ClockIcon>
-                    ) : (
-                      options.name
-                    )}
+                    <div className='flex items-center'>
+                      {option.name === COLUMNS.COLUMN5 ? (
+                        <ClockIcon>{COLUMNS.COLUMN5}</ClockIcon>
+                      ) : (
+                        option.name
+                      )}
+                      {option.name !== COLUMNS.COLUMN1 ? (
+                        currentSort === option.name ? (
+                          <ArrowIcon
+                            width={18}
+                            height={18}
+                            className={`text-white mx-2 ${
+                              isAscending ? 'rotate-90' : '-rotate-90'
+                            }`}
+                          />
+                        ) : (
+                          <ArrowIcon
+                            width={18}
+                            height={18}
+                            className={`text-grey mx-2 rotate-90`}
+                          />
+                        )
+                      ) : null}
+                    </div>
                   </td>
                 ))}
               </tr>
             </thead>
             <tbody>
-              {filteredtracks.map((track) => (
+              {filteredTracks.map((allTracks) => (
                 <motion.tr
                   onDoubleClick={() => {
-                    pausePlay(track)
+                    pausePlay(allTracks)
                   }}
                   onClick={() => {
-                    selectTrack(track)
+                    setTrack(allTracks)
                   }}
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  transition={{ duration: 1 }}
+                  transition={{ duration: 0.5 }}
                   className='border-t border-b border-color hover:bg-color'
-                  key={track.id}
+                  key={allTracks.id}
                 >
                   <td>
-                    {track.is_playing ? (
+                    {allTracks.is_playing ? (
                       <PauseIcon
                         onClick={() => {
-                          pausePlay(track)
+                          pausePlay(allTracks)
                         }}
                         className='cursor-pointer bg-indigo-500 p-1 rounded-full hover:bg-indigo-400 text-white'
                       />
                     ) : (
                       <PlayIcon
                         onClick={() => {
-                          pausePlay(track)
+                          pausePlay(allTracks)
                         }}
-                        className='bg-indigo-500 p-1 cursor-pointer rounded-full hover:bg-indigo-400 text-white'
+                        className='cursor-pointer  bg-indigo-500 p-1 rounded-full hover:bg-indigo-400 text-white'
                       />
                     )}
                   </td>
                   <td className='flex items-center text-base '>
-                    <Image
-                      loading='lazy'
-                      className='rounded-lg mr-4'
-                      src={track.album.images[2].url}
-                      width={45}
-                      height={45}
-                      alt='Cover'
-                    />
+                    {allTracks.album?.images?.at(2)?.url && (
+                      <Image
+                        loading='lazy'
+                        className='rounded-lg mr-4'
+                        src={allTracks.album.images.at(2)!.url}
+                        width={45}
+                        height={45}
+                        alt='Cover'
+                      />
+                    )}
                     <article>
                       <Link
                         onClick={() => setTrack(track)}
                         className='text-white cursor-pointer hover:underline'
-                        href={`/artist/${track.id}`}
+                        href={`/artist/${allTracks.id}`}
                       >
-                        {track.name}
+                        {allTracks.name}
                       </Link>
-                      <p className='text-sm'>{track.artists.at(0)?.name}</p>
+                      <p className='text-sm'>
+                        {allTracks.artists?.at(0)?.name}
+                      </p>
                     </article>
                   </td>
-                  <td>{track.album.name}</td>
+                  <td>{allTracks.album.name}</td>
                   <td>
                     {milisecondsToDate({
                       hasYear: true,
-                      date: track.album.release_date
+                      date: allTracks.album.release_date
                     })}
                   </td>
                   <td>
                     {milisecondsToDate({
                       hasYear: false,
-                      date: track.duration_ms
+                      date: allTracks.duration_ms
                     })}
                   </td>
                 </motion.tr>

@@ -18,9 +18,7 @@ export default function RootLayout({
       <html lang='en'>
         <body>
           <main className='flex flex-col items-center'>
-            <section className='space-y-4 my-4 mx-4 md:w-3/5 '>
-              {children}
-            </section>
+            <section className='space-y-4 m-4 md:w-3/5 '>{children}</section>
           </main>
           <Player />
         </body>

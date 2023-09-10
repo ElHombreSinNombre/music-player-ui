@@ -12,6 +12,7 @@ import VolumeIcon from '../components/Icons/Volume'
 import { useStore } from '../store/player'
 import Input from '../components/Input'
 import ClockIcon from '../components/Icons/Clock'
+import { Track } from '../models/track'
 export default function Player() {
   const [reproduced, setReproduced] = useState<string>('00:00')
   const [remainingDuration, setRemainingDuration] = useState<string>('00:00')
@@ -26,26 +27,31 @@ export default function Player() {
     state.setTrack,
     state.tracks
   ])
-
+  const [prevTrack, setPrevTrack] = useState<Track | null>(null)
   const audioRef = useRef<HTMLAudioElement | null>(null)
+  const audio = audioRef.current
 
   useEffect(() => {
-    if (track) {
-      resetPlayer()
-      progress()
-      if (track.is_playing) {
-        audioRef.current?.play()
-      } else {
-        audioRef.current?.pause()
+    if (track && audio) {
+      if ((prevTrack && track.name !== prevTrack.name) || !prevTrack) {
+        audio.src = track.preview_url
+        resetPlayer()
+        progress()
       }
+      if (track.is_playing) {
+        audio.play()
+      } else {
+        audio.pause()
+      }
+      setPrevTrack(track)
     }
   }, [track])
 
   const progress = () => {
     setInfo(false)
     const interval = setInterval(() => {
-      if (audioRef.current && track) {
-        const currentTime = audioRef.current.currentTime
+      if (audio && track) {
+        const currentTime = audio.currentTime
         const formatedReproduced = milisecondsToDate({
           date: currentTime * 1000
         })
@@ -70,6 +76,7 @@ export default function Player() {
       }
     }, 1000)
     return () => {
+      resetPlayer()
       clearInterval(interval)
     }
   }
@@ -78,8 +85,8 @@ export default function Player() {
     changePlaying()
   }
   const changeVolume = (value: number) => {
-    if (audioRef.current) {
-      audioRef.current.volume = value / 100
+    if (audio) {
+      audio.volume = value / 100
       setVolume(value)
     }
   }
@@ -246,11 +253,9 @@ export default function Player() {
                   }}
                 />
               </div>
-              {track.is_playing && (
-                <audio ref={audioRef}>
-                  <source src={track.preview_url} type='audio/mpeg' />
-                </audio>
-              )}
+              <audio ref={audioRef}>
+                <source type='audio/mpeg' />
+              </audio>
             </div>
           </article>
         </motion.section>

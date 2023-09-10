@@ -21,13 +21,13 @@ export default function Table({ customTracks, showTitle = false }: TableProps) {
   const [isAscending, setIsAscending] = useState<boolean>(false)
   const [toggleSort, settoggleSort] = useState<boolean>(false)
   const [filteredTracks, setfilteredTracks] = useState<Track[] | null>(null)
+  const [allTracks, setAllTracks] = useState<Track[] | null>(null)
   const [changePlaying, setTrack, track, tracks] = useStore((state) => [
     state.changePlaying,
     state.setTrack,
     state.track,
     state.tracks
   ])
-  const allTracks = customTracks ? customTracks : tracks
 
   const COLUMNS = Object.freeze({
     COLUMN1: '#',
@@ -53,9 +53,12 @@ export default function Table({ customTracks, showTitle = false }: TableProps) {
       name: COLUMNS.COLUMN5
     }
   ]
-  useEffect(() => setfilteredTracks(allTracks), [customTracks, tracks, track])
 
-  useEffect(() => {}, [allTracks])
+  useEffect(() => {
+    setAllTracks(customTracks ? customTracks : tracks)
+  }, [customTracks, tracks])
+
+  useEffect(() => setfilteredTracks(allTracks), [allTracks, track])
 
   const sortBy = (value: string) => {
     setCurrentSort(value)
@@ -74,8 +77,8 @@ export default function Table({ customTracks, showTitle = false }: TableProps) {
     setfilteredTracks(isAscending ? sortedtracks : sortedtracks.reverse())
   }
 
-  const pausePlay = (allTracks: Track) => {
-    setTrack(allTracks)
+  const pausePlay = (track: Track) => {
+    setTrack(track)
     changePlaying()
   }
 

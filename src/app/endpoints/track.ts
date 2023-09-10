@@ -28,6 +28,9 @@ const getToken = async () => {
     'https://accounts.spotify.com/api/token',
     requestOptions
   )
+  if (!res.ok) {
+    throw new Error('Failed to fetch access token')
+  }
   if (res.ok) {
     const data = await res.json()
     if (!data) {
@@ -35,8 +38,6 @@ const getToken = async () => {
     }
     token = data['access_token']
     return token
-  } else {
-    throw new Error('Failed to fetch acces token')
   }
 }
 
@@ -45,9 +46,9 @@ const searchTrackByName = async ({
   more,
   limit = 10
 }: {
-  limit: number
+  limit?: number
   name: string
-  more: boolean
+  more?: boolean
 }): Promise<Track[]> => {
   const token = await getToken()
   const res = await fetch(
@@ -58,22 +59,20 @@ const searchTrackByName = async ({
       }
     }
   )
-  if (res.ok) {
-    const data = await res.json()
-    if (!data) {
-      throw new Error('No data was received')
-    }
-    let tracks = trackParser(data.tracks.items)
-    if (data.tracks.next && more) {
-      offset += 10
-      const more = await moreTracksByName({ src: data.tracks.next })
-      tracks = [...tracks, ...more]
-      return tracks
-    }
-    return trackParser(data.tracks.items)
-  } else {
+  if (!res.ok) {
     throw new Error('Failed to fetch tracks')
   }
+  const data = await res.json()
+  if (!data) {
+    throw new Error('No data was received')
+  }
+  let tracks = data.tracks.items
+  if (data.tracks.next && more) {
+    offset += 10
+    const moreTracks = await moreTracksByName({ src: data.tracks.next })
+    tracks = [...tracks, ...moreTracks]
+  }
+  return trackParser(tracks)
 }
 
 const moreTracksByName = async ({ src }: { src: string }): Promise<Track[]> => {
@@ -82,23 +81,22 @@ const moreTracksByName = async ({ src }: { src: string }): Promise<Track[]> => {
       Authorization: `Bearer ${token}`
     }
   })
-  if (res.ok) {
-    const data = await res.json()
-    if (!data) {
-      throw new Error('No data was received')
-    }
-    return trackParser(data.tracks.items)
-  } else {
+  if (!res.ok) {
     throw new Error('Failed to fetch tracks')
   }
+  const data = await res.json()
+  if (!data) {
+    throw new Error('No data was received')
+  }
+  return trackParser(data.tracks.items)
 }
 
 const searchTrackByArtistId = async ({
   name,
   id
 }: {
-  name: string
-  id: string
+  name?: string
+  id?: string
 }): Promise<Track[]> => {
   let idOption: string | undefined = name ? await getArtistId({ name }) : id
   const res = await fetch(
@@ -109,15 +107,14 @@ const searchTrackByArtistId = async ({
       }
     }
   )
-  if (res.ok) {
-    const data = await res.json()
-    if (!data) {
-      throw new Error('No data was received')
-    }
-    return trackParser(data.tracks)
-  } else {
+  if (!res.ok) {
     throw new Error('Failed to fetch tracks')
   }
+  const data = await res.json()
+  if (!data) {
+    throw new Error('No data was received')
+  }
+  return trackParser(data.tracks)
 }
 
 const getArtistId = async ({ name }: { name: string }): Promise<string> => {
@@ -129,15 +126,14 @@ const getArtistId = async ({ name }: { name: string }): Promise<string> => {
       }
     }
   )
-  if (res.ok) {
-    const data = await res.json()
-    if (!data) {
-      throw new Error('No data was received')
-    }
-    return data.artists.items.at(0).id
-  } else {
-    throw new Error('Failed to fetch artist songs')
+  if (!res.ok) {
+    throw new Error('Failed to fetch tracks')
   }
+  const data = await res.json()
+  if (!data) {
+    throw new Error('No data was received')
+  }
+  return data.artists.items.at(0).id
 }
 
 export { searchTrackByArtistId, searchTrackByName }

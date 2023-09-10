@@ -5,11 +5,11 @@ import { motion } from 'framer-motion'
 import { useEffect, useState } from 'react'
 import { type Options } from '../models/options'
 import milisecondsToDate from '../utils/formatDate'
-import PauseIcon from './Icons/Pause'
-import PlayIcon from './Icons/Play'
-import ClockIcon from './Icons/Clock'
-import SearchIcon from './Icons/Search'
-import ArrowIcon from './Icons/Arrow'
+import PauseIcon from '../components/Icons/Pause'
+import PlayIcon from '../components/Icons/Play'
+import ClockIcon from '../components/Icons/Clock'
+import SearchIcon from '../components/Icons/Search'
+import ArrowIcon from '../components/Icons/Arrow'
 import { useStore } from '../store/player'
 
 interface TableProps {
@@ -53,35 +53,29 @@ export default function Table({ customTracks, showTitle = false }: TableProps) {
       name: COLUMNS.COLUMN5
     }
   ]
-  useEffect(() => {
-    setfilteredTracks(allTracks)
-  }, [customTracks, tracks, track])
+  useEffect(() => setfilteredTracks(allTracks), [customTracks, tracks, track])
 
-  useEffect(() => {
-    if (allTracks) {
-      setTrack(allTracks.at(0)!)
-    }
-  }, [allTracks])
+  useEffect(() => {}, [allTracks])
 
   const sortBy = (value: string) => {
     setCurrentSort(value)
     setIsAscending(!isAscending)
     const sortedtracks = [...tracks!].sort((a, b) => {
-      if (value === COLUMNS.COLUMN1) {
-        return a.name.localeCompare(b.name)
-      } else if (value === COLUMNS.COLUMN2) {
+      if (value === COLUMNS.COLUMN2) {
         return a.album.name.localeCompare(b.album.name)
       } else if (value === COLUMNS.COLUMN3) {
         return a.album.release_date - b.album.release_date
-      } else {
+      } else if (value === COLUMNS.COLUMN5) {
         return a.duration_ms - b.duration_ms
+      } else {
+        return a.name.localeCompare(b.name)
       }
     })
     setfilteredTracks(isAscending ? sortedtracks : sortedtracks.reverse())
   }
 
-  const pausePlay = (track: Track) => {
-    setTrack(track)
+  const pausePlay = (allTracks: Track) => {
+    setTrack(allTracks)
     changePlaying()
   }
 
@@ -91,7 +85,7 @@ export default function Table({ customTracks, showTitle = false }: TableProps) {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5 }}
-        className='absolute right-0 mt-40 py-4 px-4 bg-color border-lg z-10'
+        className='absolute right-0 mt-40 p-4 bg-color border-lg z-10'
       >
         {options.slice(1).map((option) => (
           <motion.li
@@ -113,10 +107,10 @@ export default function Table({ customTracks, showTitle = false }: TableProps) {
   }
 
   return (
-    <>
+    <section data-testid='table'>
       {filteredTracks && filteredTracks?.length > 0 && (
         <>
-          <article className='relative flex items-center justify-between space-x-2'>
+          <div className='relative flex items-center justify-between space-x-2'>
             {showTitle && track && (
               <>
                 {track.is_playing ? (
@@ -142,9 +136,11 @@ export default function Table({ customTracks, showTitle = false }: TableProps) {
               </>
             )}
 
-            <article
+            <div
               title='Sort by'
-              className='flex items-center gap-2 ml-auto text-white cursor-pointer'
+              className={`flex items-center gap-2 ml-auto cursor-pointer ${
+                toggleSort ? 'text-white' : 'text-color hover:text-white'
+              }`}
               onClick={() => {
                 settoggleSort(!toggleSort)
               }}
@@ -160,11 +156,10 @@ export default function Table({ customTracks, showTitle = false }: TableProps) {
               >
                 Back
               </ArrowIcon>
-            </article>
+            </div>
             {toggleSort && <SortMenu />}
-          </article>
+          </div>
           <motion.table
-            data-testid='table'
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5 }}
@@ -232,7 +227,7 @@ export default function Table({ customTracks, showTitle = false }: TableProps) {
                   key={allTracks.id}
                 >
                   <td>
-                    {allTracks.is_playing ? (
+                    {track && track.id === allTracks.id && track.is_playing ? (
                       <PauseIcon
                         onClick={() => {
                           pausePlay(allTracks)
@@ -281,7 +276,6 @@ export default function Table({ customTracks, showTitle = false }: TableProps) {
                   </td>
                   <td>
                     {milisecondsToDate({
-                      hasYear: false,
                       date: allTracks.duration_ms
                     })}
                   </td>
@@ -291,6 +285,6 @@ export default function Table({ customTracks, showTitle = false }: TableProps) {
           </motion.table>
         </>
       )}
-    </>
+    </section>
   )
 }

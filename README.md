@@ -11,5 +11,5 @@ Technologies
 
 Run
 
-- _npm install_
-- _npm run dev_
+- _pnpm install_
+- _pnpm run dev_

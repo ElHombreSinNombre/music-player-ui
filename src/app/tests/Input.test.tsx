@@ -1,11 +1,11 @@
 import React from 'react'
 import { render } from '@testing-library/react'
-import Input from './../components/Input'
-import SearchIcon from './../components/Icons/Search'
+import Input from '../components/Input'
+import SearchIcon from '../components/Icons/Search'
 import '@testing-library/jest-dom'
 
 describe('Search icon', () => {
-  it('Component is render', () => {
+  test('Component is render', () => {
     const icon = render(<SearchIcon />)
     expect(icon).toBeTruthy()
   })

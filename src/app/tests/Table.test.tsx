@@ -8,21 +8,21 @@ import trackParser from '../parsers/track'
 import PauseIcon from '../components/Icons/Pause'
 
 describe('Pause icon', () => {
-  it('Component is render', () => {
+  test('Component is render', () => {
     const icon = render(<PauseIcon />)
     expect(icon).toBeTruthy()
   })
 })
 
 describe('Tracks parser', () => {
-  it('Parser works', () => {
+  test('Parser works', () => {
     const parser = trackParser(tracks)
     expect(parser).toEqual(tracks)
   })
 })
 
 describe('Utils', () => {
-  it('Miliseconds to date works', () => {
+  test('Miliseconds to date works', () => {
     const hasYear = milisecondsToDate({ hasYear: true, date: 0 })
     expect(hasYear).toBe('01/01/1970')
     const notHasYear = milisecondsToDate({ hasYear: false, date: 0 })
@@ -31,7 +31,7 @@ describe('Utils', () => {
 })
 
 describe('Table', () => {
-  it('Component is render', () => {
+  test('Component is render', () => {
     const { getByTestId } = render(<Table customTracks={tracks} />)
     const table = getByTestId('table')
     expect(table).toBeTruthy()

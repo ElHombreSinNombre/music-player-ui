@@ -10,7 +10,7 @@ import { useRouter } from 'next/navigation'
 import Toast from '../../components/Toast'
 import ArrowIcon from '../../components/Icons/Arrow'
 import { useStore } from '../../store/player'
-import debounce from '@/app/utils/debounce'
+import debounce from '../../utils/debounce'
 
 export default function Podcast() {
   const router = useRouter()
@@ -24,7 +24,7 @@ export default function Podcast() {
     fetchSongsById: state.fetchSongsById
   }))
 
-  const getSongs = ({ id, name }: { id: string; name: string }): void => {
+  const getSongs = ({ id, name }: { id?: string; name?: string }): void => {
     setLoading(true)
     setError(false)
     const param = id ? { id } : { name }
@@ -59,15 +59,14 @@ export default function Podcast() {
   }, [name])
 
   const TrackTable = useMemo(() => {
-    if (loading) {
-      return (
-        <section className='flex justify-center items-center h-screen'>
-          <Spinner backgroundColor='text-indigo-500' />
-        </section>
-      )
-    } else {
+    if (!loading) {
       return <Table showTitle customTracks={tracks} />
     }
+    return (
+      <section className='flex justify-center items-center h-screen'>
+        <Spinner backgroundColor='text-indigo-500' />
+      </section>
+    )
   }, [loading, tracks])
 
   return (

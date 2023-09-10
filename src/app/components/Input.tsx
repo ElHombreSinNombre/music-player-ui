@@ -1,5 +1,5 @@
 import type React from 'react'
-import SearchIcon from './Icons/Search'
+import SearchIcon from '../components/Icons/Search'
 
 interface InputProps {
   name?: string
@@ -52,7 +52,7 @@ export default function Input({
         placeholder={placeholder}
         className={`input ${icon ? 'pl-10' : ''} ${
           !full ? 'cursor-pointer' : ''
-        } ${type !== 'range' ? 'py-4 px-4' : ''}`}
+        } ${type !== 'range' ? 'p-4' : ''}`}
       />
     </section>
   )

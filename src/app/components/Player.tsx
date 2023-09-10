@@ -1,19 +1,17 @@
 import Image from 'next/image'
-import { type Track } from '../models/track'
 import { motion } from 'framer-motion'
 import milisecondsToDate from '../utils/formatDate'
 import { useEffect, useRef, useState } from 'react'
-import ShuffleIcon from './Icons/Shuffle'
-import PreviousIcon from './Icons/Previous'
-import PauseIcon from './Icons/Pause'
-import PlayIcon from './Icons/Play'
-import NextIcon from './Icons/Next'
-import LoopIcon from './Icons/Loop'
-import VolumeIcon from './Icons/Volume'
+import ShuffleIcon from '../components/Icons/Shuffle'
+import PreviousIcon from '../components/Icons/Previous'
+import PauseIcon from '../components/Icons/Pause'
+import PlayIcon from '../components/Icons/Play'
+import NextIcon from '../components/Icons/Next'
+import LoopIcon from '../components/Icons/Loop'
+import VolumeIcon from '../components/Icons/Volume'
 import { useStore } from '../store/player'
-import Input from './Input'
-import ClockIcon from './Icons/Clock'
-
+import Input from '../components/Input'
+import ClockIcon from '../components/Icons/Clock'
 export default function Player() {
   const [reproduced, setReproduced] = useState<string>('00:00')
   const [remainingDuration, setRemainingDuration] = useState<string>('00:00')
@@ -33,33 +31,39 @@ export default function Player() {
 
   useEffect(() => {
     if (track) {
+      resetPlayer()
       progress()
-      resetSrcTrack()
+      if (track.is_playing) {
+        audioRef.current?.play()
+      } else {
+        audioRef.current?.pause()
+      }
     }
   }, [track])
 
   const progress = () => {
     setInfo(false)
     const interval = setInterval(() => {
-      if (audioRef.current) {
-        const progress = Math.round(
-          (audioRef.current.currentTime / (track!.duration_ms / 1000)) * 100
-        )
+      if (audioRef.current && track) {
+        const currentTime = audioRef.current.currentTime
         const formatedReproduced = milisecondsToDate({
-          hasYear: false,
-          date: audioRef.current.currentTime * 1000
+          date: currentTime * 1000
+        })
+        const formatedRemaining = milisecondsToDate({
+          date: track.duration_ms - currentTime * 1000
         })
         setReproduced(formatedReproduced)
-        const formatedRemaining = milisecondsToDate({
-          hasYear: false,
-          date: track!.duration_ms - audioRef.current.currentTime * 1000
-        })
         setRemainingDuration(formatedRemaining)
+        const progress = Math.round(
+          (currentTime / (track.duration_ms / 1000)) * 100
+        )
         setcurrentProgress(progress)
         if (progress >= 100) {
+          changePlaying()
           resetPlayer()
         }
-        if (Math.round(audioRef.current.currentTime) >= 30) {
+        if (Math.round(currentTime) >= 30) {
+          changePlaying()
           resetPlayer()
           setInfo(true)
         }
@@ -67,16 +71,6 @@ export default function Player() {
     }, 1000)
     return () => {
       clearInterval(interval)
-    }
-  }
-
-  const resetSrcTrack = () => {
-    if (track!.is_playing && audioRef.current) {
-      const newTrackSrc = track!.preview_url
-      if (audioRef.current.src !== newTrackSrc) {
-        audioRef.current.currentTime = 0
-        audioRef.current.src = newTrackSrc
-      }
     }
   }
 
@@ -91,18 +85,17 @@ export default function Player() {
   }
 
   const resetPlayer = () => {
-    changePlaying()
     setcurrentProgress(0)
-    setReproduced('')
-    setRemainingDuration('')
+    setReproduced('00:00')
+    setRemainingDuration('00:00')
   }
 
   const moveIndex = ({
     nextSong = true,
     loop = false
   }: {
-    nextSong: boolean
-    loop: boolean
+    nextSong?: boolean
+    loop?: boolean
   }) => {
     if (tracks && track) {
       const findIndex = tracks.findIndex((element) => element.id === track.id)
@@ -144,6 +137,7 @@ export default function Player() {
         <PreviousIcon
           className='cursor-pointer hidden md:flex text-white hover:text-indigo-500 '
           onClick={() => {
+            pausePlay()
             moveIndex({ nextSong: false })
           }}
         />
@@ -170,7 +164,8 @@ export default function Player() {
         <NextIcon
           className='cursor-pointer hidden md:flex text-white hover:text-indigo-500'
           onClick={() => {
-            moveIndex({ nextSong: true })
+            pausePlay()
+            moveIndex({})
           }}
         />
         <LoopIcon
@@ -189,24 +184,23 @@ export default function Player() {
   }
 
   return (
-    <>
+    <section data-testid='player'>
       {info && (
-        <section className='fixed top-0 right-0'>
+        <article className='fixed top-0 right-0'>
           <ClockIcon className='text-red-500 m-2 cursor-help'>
             Can´t reproduce more than 30s
           </ClockIcon>
-        </section>
+        </article>
       )}
-      {track && (
-        <motion.div
-          data-testid='player'
-          className='w-full pt-32'
+      {track && tracks && (
+        <motion.section
+          className='w-full mt-24'
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5 }}
         >
-          <section className='fixed bottom-0 w-full z-10'>
-            <article className='flex items-center bg-black text-white gap-8 w-full'>
+          <article className='fixed bottom-0 w-full z-10'>
+            <div className='flex items-center bg-black text-white gap-8 w-full'>
               {track.album?.images?.at(1) && (
                 <Image
                   title={track.name}
@@ -217,16 +211,16 @@ export default function Player() {
                   alt={track.name}
                 />
               )}
-              <article className='line-clamp-3 w-28'>
+              <div className='line-clamp-3 w-28'>
                 <p className='line-clamp-1'>{track.name}</p>
                 <p>{track.artists?.at(0)?.name}</p>
-              </article>
-              <article className='flex items-center flex-grow'>
+              </div>
+              <div className='flex items-center flex-grow'>
                 <div className='flex-grow flex justify-center'>
                   <Icons />
                 </div>
-              </article>
-              <article className='md:flex flex-grow hidden md:items-center justify-center gap-8'>
+              </div>
+              <div className='md:flex flex-grow hidden md:items-center justify-center gap-8'>
                 <p className='text-white'>{reproduced}</p>
                 <span className='duration bg-color h-2 rounded-lg overflow-hidden'>
                   <div
@@ -237,8 +231,8 @@ export default function Player() {
                   ></div>
                 </span>
                 <p className='text-color'>{remainingDuration}</p>
-              </article>
-              <article className='md:flex flex-grow hidden md:items-center justify-center gap-8'>
+              </div>
+              <div className='md:flex flex-grow hidden md:items-center justify-center gap-8'>
                 <VolumeIcon className='text-white' off={volume == 0} />
                 <Input
                   title={`Volume at ${volume}%`}
@@ -251,16 +245,16 @@ export default function Player() {
                     changeVolume(+event)
                   }}
                 />
-              </article>
+              </div>
               {track.is_playing && (
-                <audio autoPlay ref={audioRef}>
+                <audio ref={audioRef}>
                   <source src={track.preview_url} type='audio/mpeg' />
                 </audio>
               )}
-            </article>
-          </section>
-        </motion.div>
+            </div>
+          </article>
+        </motion.section>
       )}
-    </>
+    </section>
   )
 }

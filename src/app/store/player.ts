@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { Track } from '@/app/models/track'
+import { Track } from '../models/track'
 import { searchTrackByArtistId, searchTrackByName } from '../endpoints/track'
 
 interface State {
@@ -14,15 +14,15 @@ interface State {
     limit
   }: {
     name: string
-    more: boolean
-    limit: number
+    more?: boolean
+    limit?: number
   }) => Promise<void>
   fetchSongsById: ({
     name,
     id
   }: {
-    name: string
-    id: string
+    name?: string
+    id?: string
   }) => Promise<Track[]>
 }
 
@@ -40,23 +40,19 @@ export const useStore = create<State>((set, get) => ({
     const { tracks } = get()
     if (tracks && track) {
       const updatedTracks = tracks.map((allTracks) => {
-        if (allTracks.id === track.id) {
-          return { ...allTracks, is_playing: !track.is_playing }
-        } else {
+        if (allTracks.id !== track.id) {
           return { ...allTracks, is_playing: false }
+        } else {
+          return { ...allTracks, is_playing: !track.is_playing }
         }
       })
       set(() => ({
         tracks: updatedTracks
       }))
-      const trackIsTrue = updatedTracks.find(
-        (updatedTrack) => updatedTrack.is_playing === true
-      )
-      if (trackIsTrue) {
-        set(() => ({
-          track: trackIsTrue
-        }))
-      }
+      const updateTrack = { ...track, is_playing: !track.is_playing }
+      set(() => ({
+        track: updateTrack
+      }))
     }
   },
   fetchTracks: async ({
@@ -65,16 +61,14 @@ export const useStore = create<State>((set, get) => ({
     limit
   }: {
     name: string
-    more: boolean
-    limit: number
+    more?: boolean
+    limit?: number
   }) => {
     await searchTrackByName({ name, more, limit }).then((tracks: Track[]) => {
-      console.log(tracks)
       set({ tracks })
     })
   },
-  fetchSongsById: async ({ name, id }: { name: string; id: string }) => {
-    const data = await searchTrackByArtistId({ name, id })
-    return data
+  fetchSongsById: async ({ name, id }: { name?: string; id?: string }) => {
+    return await searchTrackByArtistId({ name, id })
   }
 }))

@@ -23,8 +23,8 @@ export default function Home() {
     limit,
     more = false
   }: {
-    limit: number
-    more: boolean
+    limit?: number
+    more?: boolean
   }) => {
     if (name) {
       const debouncedFetch = debounce(() => {
@@ -44,20 +44,17 @@ export default function Home() {
     }
   }
 
-  useEffect(() => {
-    getTracks({ more: false })
-  }, [name])
+  useEffect(() => getTracks({}), [name])
 
   const TrackTable = useMemo(() => {
-    if (loading) {
-      return (
-        <section className='flex justify-center items-center h-screen'>
-          <Spinner backgroundColor='text-indigo-500' />
-        </section>
-      )
-    } else {
+    if (!loading) {
       return <Table />
     }
+    return (
+      <section className='flex justify-center items-center h-screen'>
+        <Spinner backgroundColor='text-indigo-500' />
+      </section>
+    )
   }, [loading])
 
   return (
@@ -74,8 +71,8 @@ export default function Home() {
       {error && <Toast text='An error has occurred' />}
       {TrackTable}
       {tracks && (
-        <motion.div className='flex justify-center items-center'>
-          <motion.div
+        <motion.section className='flex justify-center items-center'>
+          <motion.article
             whileHover={{
               y: [-5, 5],
               transition: {
@@ -92,8 +89,8 @@ export default function Home() {
             >
               More
             </ArrowIcon>
-          </motion.div>
-        </motion.div>
+          </motion.article>
+        </motion.section>
       )}
     </>
   )

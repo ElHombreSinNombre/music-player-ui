@@ -1,6 +1,6 @@
 import React from 'react'
 import { render } from '@testing-library/react'
-import Toast from './../components/Toast'
+import Toast from '../components/Toast'
 import '@testing-library/jest-dom'
 
 describe('Toast', () => {

@@ -1,7 +1,10 @@
 import { type Track } from '../models/track'
 
-const trackParser = (data: Track[]) => {
-  return data.map((trackData: Track) => {
+const trackParser = (tracks: Track[]) => {
+  const trackbyName = tracks.sort((a, b) => {
+    return a.name.localeCompare(b.name)
+  })
+  return trackbyName.map((trackData: Track) => {
     const track: Track = {
       id: trackData.id,
       name: trackData.name,

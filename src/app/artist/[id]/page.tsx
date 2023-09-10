@@ -73,14 +73,14 @@ export default function Podcast() {
     <>
       <section className='gap-4 space-y-4 '>
         <article className='flex items-center gap-8'>
-          <ArrowIcon
+          <div
+            className='cursor-pointer text-white'
             onClick={() => {
               router.back()
             }}
-            className='cursor-pointer text-white'
           >
-            Back
-          </ArrowIcon>
+            <ArrowIcon>Back</ArrowIcon>
+          </div>
           <div className='flex flex-grow'>
             <Input
               full

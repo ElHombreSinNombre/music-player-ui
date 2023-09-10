@@ -18,15 +18,17 @@ export default function Player() {
   const [remainingDuration, setRemainingDuration] = useState<string>('00:00')
   const [currentProgress, setcurrentProgress] = useState<number>(0)
   const [volume, setVolume] = useState<number>(50)
-  const [shuffle, setShuffle] = useState<boolean>(false)
   const [loop, setLoop] = useState<boolean>(false)
   const [info, setInfo] = useState<boolean>(false)
-  const [changePlaying, track, setTrack, tracks] = useStore((state) => [
-    state.changePlaying,
-    state.track,
-    state.setTrack,
-    state.tracks
-  ])
+  const [changePlaying, track, setTrack, tracks, setTracks] = useStore(
+    (state) => [
+      state.changePlaying,
+      state.track,
+      state.setTrack,
+      state.tracks,
+      state.setTracks
+    ]
+  )
   const [prevTrack, setPrevTrack] = useState<Track | null>(null)
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const audio = audioRef.current
@@ -48,36 +50,34 @@ export default function Player() {
   }, [track])
 
   const progress = () => {
-    setInfo(false)
-    const interval = setInterval(() => {
-      if (audio && track) {
-        const currentTime = audio.currentTime
-        const formatedReproduced = milisecondsToDate({
-          date: currentTime * 1000
-        })
-        const formatedRemaining = milisecondsToDate({
-          date: track.duration_ms - currentTime * 1000
-        })
-        setReproduced(formatedReproduced)
-        setRemainingDuration(formatedRemaining)
-        const progress = Math.round(
-          (currentTime / (track.duration_ms / 1000)) * 100
-        )
-        setcurrentProgress(progress)
-        if (progress >= 100) {
-          changePlaying()
-          resetPlayer()
+    if (track && track.is_playing) {
+      setInfo(false)
+      const interval = setInterval(() => {
+        if (audio) {
+          const currentTime = audio.currentTime
+          const formatedReproduced = milisecondsToDate({
+            date: currentTime * 1000
+          })
+          const formatedRemaining = milisecondsToDate({
+            date: track.duration_ms - currentTime * 1000
+          })
+          setReproduced(formatedReproduced)
+          setRemainingDuration(formatedRemaining)
+          const progress = Math.round(currentTime)
+          setcurrentProgress(progress)
+          if (progress >= 100 || progress >= 30) {
+            changePlaying()
+            resetPlayer()
+          }
+          if (Math.round(currentTime) >= 30) {
+            setInfo(true)
+          }
         }
-        if (Math.round(currentTime) >= 30) {
-          changePlaying()
-          resetPlayer()
-          setInfo(true)
-        }
+      }, 1000)
+      return () => {
+        resetPlayer()
+        clearInterval(interval)
       }
-    }, 1000)
-    return () => {
-      resetPlayer()
-      clearInterval(interval)
     }
   }
 
@@ -107,17 +107,10 @@ export default function Player() {
     if (tracks && track) {
       const findIndex = tracks.findIndex((element) => element.id === track.id)
       if (findIndex !== -1) {
-        let index: number
-        if (loop) {
-          index = findIndex === tracks.length - 1 ? 0 : findIndex + 1
-        } else {
-          if (findIndex === 0 && !nextSong) {
-            index = tracks.length - 1
-          } else if (findIndex === tracks.length - 1 && nextSong) {
-            index = 0
-          } else {
-            index = nextSong ? findIndex + 1 : findIndex - 1
-          }
+        pausePlay()
+        let index = nextSong ? findIndex + 1 : findIndex - 1
+        if (loop && audio && audio.currentTime === 30) {
+          index = tracks.length - 1 ? 0 : index
         }
         const changedIndex = index % tracks.length
         setTrack(tracks[changedIndex])
@@ -129,63 +122,67 @@ export default function Player() {
   const Icons = () => {
     return (
       <article className='flex gap-8 items-center '>
-        <ShuffleIcon
-          onClick={() => {
-            setShuffle(!shuffle)
-            if (shuffle && tracks) {
-              setTrack(tracks[Math.floor(Math.random() * tracks.length)])
-              pausePlay()
-            }
-          }}
-          className={`cursor-pointer hidden md:flex hover:text-indigo-500 text-${
-            shuffle ? 'indigo-500' : 'white'
-          }`}
-        />
-        <PreviousIcon
-          className='cursor-pointer hidden md:flex text-white hover:text-indigo-500 '
-          onClick={() => {
-            pausePlay()
-            moveIndex({ nextSong: false })
-          }}
-        />
+        <div className='cursor-pointer hidden md:flex text-white hover:text-indigo-500'>
+          <ShuffleIcon
+            onClick={() => {
+              if (tracks) {
+                setTracks(tracks.sort(() => Math.random() - 0.5))
+                setTrack(tracks[Math.floor(Math.random() * tracks.length)])
+                pausePlay()
+              }
+            }}
+          />
+        </div>
+        <div className='cursor-pointer hidden md:flex text-white hover:text-indigo-500'>
+          <PreviousIcon
+            onClick={() => {
+              moveIndex({ nextSong: false })
+            }}
+          />
+        </div>
         {track &&
           (track.is_playing ? (
-            <PauseIcon
-              onClick={() => {
-                pausePlay()
-              }}
-              width={36}
-              height={36}
-              className='cursor-pointer bg-indigo-500 p-1 rounded-full hover:bg-indigo-400'
-            />
+            <div className='cursor-pointer bg-indigo-500 p-1 rounded-full hover:bg-indigo-400'>
+              <PauseIcon
+                onClick={() => {
+                  pausePlay()
+                }}
+                width={36}
+                height={36}
+              />
+            </div>
           ) : (
-            <PlayIcon
-              onClick={() => {
-                pausePlay()
-              }}
-              width={36}
-              height={36}
-              className='cursor-pointer bg-indigo-500 p-1 rounded-full hover:bg-indigo-400'
-            />
+            <div className='cursor-pointer bg-indigo-500 p-1 rounded-full hover:bg-indigo-400'>
+              <PlayIcon
+                onClick={() => {
+                  pausePlay()
+                }}
+                width={36}
+                height={36}
+              />
+            </div>
           ))}
-        <NextIcon
-          className='cursor-pointer hidden md:flex text-white hover:text-indigo-500'
-          onClick={() => {
-            pausePlay()
-            moveIndex({})
-          }}
-        />
-        <LoopIcon
-          onClick={() => {
-            setLoop(!loop)
-            if (loop) {
-              moveIndex({ loop: true })
-            }
-          }}
+        <div className='cursor-pointer hidden md:flex text-white hover:text-indigo-500'>
+          <NextIcon
+            onClick={() => {
+              moveIndex({})
+            }}
+          />
+        </div>
+        <div
           className={`cursor-pointer hidden md:flex hover:text-indigo-500 text-${
             loop ? 'indigo-500' : 'white'
           }`}
-        />
+        >
+          <LoopIcon
+            onClick={() => {
+              setLoop(!loop)
+              if (!loop) {
+                moveIndex({ loop: true })
+              }
+            }}
+          />
+        </div>
       </article>
     )
   }
@@ -194,9 +191,9 @@ export default function Player() {
     <section data-testid='player'>
       {info && (
         <article className='fixed top-0 right-0'>
-          <ClockIcon className='text-red-500 m-2 cursor-help'>
-            Can´t reproduce more than 30s
-          </ClockIcon>
+          <div className='text-red-500 m-2 cursor-help'>
+            <ClockIcon>Can´t reproduce more than 30s</ClockIcon>
+          </div>
         </article>
       )}
       {track && tracks && (

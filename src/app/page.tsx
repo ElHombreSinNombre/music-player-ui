@@ -83,12 +83,12 @@ export default function Home() {
               }
             }}
           >
-            <ArrowIcon
+            <div
               className='text-color -rotate-90 cursor-pointer hover:transition-colors duration-300 hover:text-white'
               onClick={() => getTracks({ more: true })}
             >
-              More
-            </ArrowIcon>
+              <ArrowIcon>More</ArrowIcon>
+            </div>
           </motion.article>
         </motion.section>
       )}

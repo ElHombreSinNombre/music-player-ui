@@ -20,14 +20,15 @@ export default function Table({ customTracks, showTitle = false }: TableProps) {
   const [currentSort, setCurrentSort] = useState<string | null>(null)
   const [isAscending, setIsAscending] = useState<boolean>(false)
   const [toggleSort, settoggleSort] = useState<boolean>(false)
-  const [filteredTracks, setfilteredTracks] = useState<Track[] | null>(null)
-  const [allTracks, setAllTracks] = useState<Track[] | null>(null)
-  const [changePlaying, setTrack, track, tracks] = useStore((state) => [
-    state.changePlaying,
-    state.setTrack,
-    state.track,
-    state.tracks
-  ])
+  const [changePlaying, setTrack, track, tracks, setTracks] = useStore(
+    (state) => [
+      state.changePlaying,
+      state.setTrack,
+      state.track,
+      state.tracks,
+      state.setTracks
+    ]
+  )
 
   const COLUMNS = Object.freeze({
     COLUMN1: '#',
@@ -54,11 +55,10 @@ export default function Table({ customTracks, showTitle = false }: TableProps) {
     }
   ]
 
-  useEffect(() => {
-    setAllTracks(customTracks ? customTracks : tracks)
-  }, [customTracks, tracks])
-
-  useEffect(() => setfilteredTracks(allTracks), [allTracks, track])
+  useEffect(
+    () => setTracks(customTracks ? customTracks : tracks),
+    [customTracks, tracks]
+  )
 
   const sortBy = (value: string) => {
     setCurrentSort(value)
@@ -74,7 +74,7 @@ export default function Table({ customTracks, showTitle = false }: TableProps) {
         return a.name.localeCompare(b.name)
       }
     })
-    setfilteredTracks(isAscending ? sortedtracks : sortedtracks.reverse())
+    setTracks(isAscending ? sortedtracks : sortedtracks.reverse())
   }
 
   const pausePlay = (track: Track) => {
@@ -111,7 +111,7 @@ export default function Table({ customTracks, showTitle = false }: TableProps) {
 
   return (
     <section data-testid='table'>
-      {filteredTracks && filteredTracks?.length > 0 && (
+      {tracks && tracks?.length > 0 && (
         <>
           <div className='relative flex items-center justify-between space-x-2'>
             {showTitle && track && (
@@ -141,7 +141,7 @@ export default function Table({ customTracks, showTitle = false }: TableProps) {
 
             <div
               title='Sort by'
-              className={`flex items-center gap-2 ml-auto cursor-pointer ${
+              className={`flex items-center gap-2 ml-auto cursor-pointer transition-colors duration-300 ${
                 toggleSort ? 'text-white' : 'text-color hover:text-white'
               }`}
               onClick={() => {
@@ -215,8 +215,9 @@ export default function Table({ customTracks, showTitle = false }: TableProps) {
               </tr>
             </thead>
             <tbody>
-              {filteredTracks.map((allTracks) => (
+              {tracks.map((allTracks) => (
                 <motion.tr
+                  title='Click to select. Double click to play.'
                   onDoubleClick={() => {
                     pausePlay(allTracks)
                   }}
@@ -226,7 +227,7 @@ export default function Table({ customTracks, showTitle = false }: TableProps) {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.5 }}
-                  className='border-t border-b border-color hover:bg-color'
+                  className='border-t border-b border-color hover:bg-color hover:text-white cursor-pointer'
                   key={allTracks.id}
                 >
                   <td>
@@ -235,14 +236,14 @@ export default function Table({ customTracks, showTitle = false }: TableProps) {
                         onClick={() => {
                           pausePlay(allTracks)
                         }}
-                        className='cursor-pointer bg-indigo-500 p-1 rounded-full hover:bg-indigo-400 text-white'
+                        className=' bg-indigo-500 p-1 rounded-full hover:bg-indigo-400 text-white'
                       />
                     ) : (
                       <PlayIcon
                         onClick={() => {
                           pausePlay(allTracks)
                         }}
-                        className='cursor-pointer  bg-indigo-500 p-1 rounded-full hover:bg-indigo-400 text-white'
+                        className=' bg-indigo-500 p-1 rounded-full hover:bg-indigo-400 text-white'
                       />
                     )}
                   </td>
@@ -260,7 +261,7 @@ export default function Table({ customTracks, showTitle = false }: TableProps) {
                     <article>
                       <Link
                         onClick={() => setTrack(track)}
-                        className='text-white cursor-pointer hover:underline'
+                        className='text-white hover:underline'
                         href={`/artist/${allTracks.id}`}
                       >
                         {allTracks.name}

@@ -1,11 +1,8 @@
-import { type Track } from '../models/track'
+import { Track } from '../models/track'
 
 const trackParser = (tracks: Track[]) => {
-  const trackbyName = tracks.sort((a, b) => {
-    return a.name.localeCompare(b.name)
-  })
-  return trackbyName.map((trackData: Track) => {
-    const track: Track = {
+  const trackbyName = tracks.map((trackData: Track) => {
+    return {
       id: trackData.id,
       name: trackData.name,
       is_playing: false,
@@ -18,7 +15,10 @@ const trackParser = (tracks: Track[]) => {
         images: trackData.album.images
       }
     }
-    return track
+  })
+
+  return trackbyName.sort((a, b) => {
+    return a.name.localeCompare(b.name)
   })
 }
 

@@ -94,13 +94,13 @@ export default function Podcast() {
           </div>
         </article>
         <Image
-          title='Track'
+          title={`${track?.name} - ${track?.artists.at(0)?.name || 'Track'}`}
           loading='lazy'
           className='rounded-lg'
           src='/music.webp'
           width={1200}
           height={280}
-          alt='Track'
+          alt={`${track?.name} - ${track?.artists.at(0)?.name || 'Track'}`}
         />
 
         {error && <Toast text='An error has occurred' />}

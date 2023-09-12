@@ -84,6 +84,12 @@ export default function Player() {
   const pausePlay = () => {
     changePlaying()
   }
+
+  const changeTrack = async (track: Track) => {
+    await setTrack(track)
+    pausePlay()
+  }
+
   const changeVolume = (value: number) => {
     if (audio) {
       audio.volume = value / 100
@@ -113,27 +119,25 @@ export default function Player() {
           index = tracks.length - 1 ? 0 : index
         }
         const changedIndex = index % tracks.length
-        setTrack(tracks[changedIndex])
-        pausePlay()
+        changeTrack(tracks[changedIndex])
       }
     }
   }
 
   const Icons = () => {
     return (
-      <article className='flex gap-8 items-center '>
-        <div className='cursor-pointer hidden md:flex text-white hover:text-indigo-500'>
+      <article className='flex gap-8 items-center icons'>
+        <div className='defaultIcon text-white'>
           <ShuffleIcon
             onClick={() => {
               if (tracks) {
                 setTracks(tracks.sort(() => Math.random() - 0.5))
-                setTrack(tracks[Math.floor(Math.random() * tracks.length)])
-                pausePlay()
+                changeTrack(tracks[Math.floor(Math.random() * tracks.length)])
               }
             }}
           />
         </div>
-        <div className='cursor-pointer hidden md:flex text-white hover:text-indigo-500'>
+        <div className='defaultIcon text-white'>
           <PreviousIcon
             onClick={() => {
               moveIndex({ nextSong: false })
@@ -142,7 +146,7 @@ export default function Player() {
         </div>
         {track &&
           (track.is_playing ? (
-            <div className='cursor-pointer bg-indigo-500 p-1 rounded-full hover:bg-indigo-400'>
+            <div className='playPauseIcon'>
               <PauseIcon
                 onClick={() => {
                   pausePlay()
@@ -152,7 +156,7 @@ export default function Player() {
               />
             </div>
           ) : (
-            <div className='cursor-pointer bg-indigo-500 p-1 rounded-full hover:bg-indigo-400'>
+            <div className='playPauseIcon'>
               <PlayIcon
                 onClick={() => {
                   pausePlay()
@@ -162,18 +166,14 @@ export default function Player() {
               />
             </div>
           ))}
-        <div className='cursor-pointer hidden md:flex text-white hover:text-indigo-500'>
+        <div className='defaultIcon text-white'>
           <NextIcon
             onClick={() => {
               moveIndex({})
             }}
           />
         </div>
-        <div
-          className={`cursor-pointer hidden md:flex hover:text-indigo-500 text-${
-            loop ? 'indigo-500' : 'white'
-          }`}
-        >
+        <div className={`defaultIcon text-${loop ? 'indigo-500' : 'white'}`}>
           <LoopIcon
             onClick={() => {
               setLoop(!loop)

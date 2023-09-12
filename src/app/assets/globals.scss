@@ -52,6 +52,16 @@ body {
     accent-color: white;
   }
 
+  .icons {
+    .playPauseIcon {
+      @apply cursor-pointer bg-indigo-500 p-1 rounded-full hover:bg-indigo-400 text-white;
+    }
+
+    .defaultIcon {
+      @apply cursor-pointer hidden md:flex hover:text-indigo-500;
+    }
+  }
+
   @layer components {
     .spinner {
       @apply h-5 w-5 animate-spin border-4 border-current border-solid rounded-full border-r-transparent;

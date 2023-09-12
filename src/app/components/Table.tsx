@@ -77,8 +77,8 @@ export default function Table({ customTracks, showTitle = false }: TableProps) {
     setTracks(isAscending ? sortedtracks : sortedtracks.reverse())
   }
 
-  const pausePlay = (track: Track) => {
-    setTrack(track)
+  const pausePlay = async (track: Track) => {
+    await setTrack(track)
     changePlaying()
   }
 
@@ -115,7 +115,7 @@ export default function Table({ customTracks, showTitle = false }: TableProps) {
         <>
           <div className='relative flex items-center justify-between space-x-2'>
             {showTitle && track && (
-              <>
+              <div className='icons'>
                 {track.is_playing ? (
                   <PauseIcon
                     onClick={() => {
@@ -123,7 +123,7 @@ export default function Table({ customTracks, showTitle = false }: TableProps) {
                     }}
                     width={36}
                     height={36}
-                    className='cursor-pointer bg-indigo-500 p-1 rounded-full hover:bg-indigo-400 text-white'
+                    className='playPauseIcon '
                   />
                 ) : (
                   <PlayIcon
@@ -132,11 +132,11 @@ export default function Table({ customTracks, showTitle = false }: TableProps) {
                     }}
                     width={36}
                     height={36}
-                    className='cursor-pointer bg-indigo-500 p-1 rounded-full hover:bg-indigo-400 text-white'
+                    className='playPauseIcon'
                   />
                 )}
                 <p className='text-lg font-bold'>{track.name}</p>
-              </>
+              </div>
             )}
 
             <div
@@ -221,8 +221,8 @@ export default function Table({ customTracks, showTitle = false }: TableProps) {
                   onDoubleClick={() => {
                     pausePlay(allTracks)
                   }}
-                  onClick={() => {
-                    setTrack(allTracks)
+                  onClick={async () => {
+                    await setTrack(allTracks)
                   }}
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
@@ -230,20 +230,20 @@ export default function Table({ customTracks, showTitle = false }: TableProps) {
                   className='border-t border-b border-color hover:bg-color hover:text-white cursor-pointer'
                   key={allTracks.id}
                 >
-                  <td>
+                  <td className='icons'>
                     {track && track.id === allTracks.id && track.is_playing ? (
                       <PauseIcon
                         onClick={() => {
                           pausePlay(allTracks)
                         }}
-                        className=' bg-indigo-500 p-1 rounded-full hover:bg-indigo-400 text-white'
+                        className='playPauseIcon'
                       />
                     ) : (
                       <PlayIcon
                         onClick={() => {
                           pausePlay(allTracks)
                         }}
-                        className=' bg-indigo-500 p-1 rounded-full hover:bg-indigo-400 text-white'
+                        className='playPauseIcon'
                       />
                     )}
                   </td>

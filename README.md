@@ -9,6 +9,10 @@ Technologies
 - **[Framer](https://www.framer.com/motion/)**
 - **[React Test Library](https://testing-library.com/docs/react-testing-library/)**
 
+Clone _.env.local.example_ and rename as _.env.local_
+
+- Change **[API KEY](https://developer.spotify.com/documentation/web-api/tutorials/getting-started)**
+
 Run
 
 - _pnpm install_

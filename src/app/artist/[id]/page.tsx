@@ -1,16 +1,16 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
-import Input from '../../components/Input'
-import Table from '../../components/Table'
-import Spinner from '../../components/Spinner'
-import { type Track } from '../../models/track'
+import Input from '../../../components/Input'
+import Table from '../../../components/Table'
+import Spinner from '../../../components/Spinner'
+import { type Track } from '../../../models/track'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
-import Toast from '../../components/Toast'
-import ArrowIcon from '../../components/Icons/Arrow'
-import { useStore } from '../../store/player'
-import debounce from '../../utils/debounce'
+import Toast from '../../../components/Toast'
+import ArrowIcon from '../../../components/Icons/Arrow'
+import { useStore } from '../../../store/player'
+import debounce from '../../../utils/debounce'
 
 export default function Podcast() {
   const router = useRouter()

@@ -7,21 +7,21 @@ $input-color: #1a1a1a;
 $text-color: #767676;
 
 body {
-  background: rgb(0, 0, 0);
+  @apply bg-black;
 }
 
 ::-webkit-scrollbar {
-  width: 0.375em;
+  @apply w-1;
 }
 
 ::-webkit-scrollbar-track {
   @apply bg-white;
-  border-radius: 0.625em;
+  @apply rounded-md;
 }
 
 ::-webkit-scrollbar-thumb {
   @apply bg-black;
-  border-radius: 0.625em;
+  @apply rounded-md;
 }
 
 @layer base {
@@ -44,12 +44,13 @@ body {
   thead td {
     @apply py-4 px-4;
   }
+
   .duration {
-    width: 32em;
+    @apply w-4/5;
   }
 
   input[type='range'] {
-    accent-color: white;
+    @apply accent-white;
   }
 
   .icons {

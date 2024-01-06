@@ -1,18 +1,19 @@
 'use client'
 import './assets/globals.scss'
 
-import Player from './components/Player'
+import Player from '../components/Player'
+import { ReactNode } from 'react'
 import Head from 'next/head'
 
-export default function RootLayout({
-  children
-}: {
-  children: React.ReactNode
-}) {
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <>
       <Head>
         <title>Music player</title>
+        <meta
+          name='description'
+          content='Simple music player with react and next'
+        />
         <link rel='icon' type='image/icon' href='favicon.ico' />
       </Head>
       <html lang='en'>

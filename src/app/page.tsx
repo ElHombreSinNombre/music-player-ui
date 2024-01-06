@@ -1,13 +1,13 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
-import Input from './components/Input'
-import Table from './components/Table'
-import Spinner from './components/Spinner'
-import Toast from './components/Toast'
-import { useStore } from './store/player'
-import ArrowIcon from './components/Icons/Arrow'
-import debounce from './utils/debounce'
+import Input from '../components/Input'
+import Table from '../components/Table'
+import Spinner from '../components/Spinner'
+import Toast from '../components/Toast'
+import { useStore } from '../store/player'
+import ArrowIcon from '../components/Icons/Arrow'
+import debounce from '../utils/debounce'
 import { motion } from 'framer-motion'
 
 export default function Home() {

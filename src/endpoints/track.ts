@@ -1,4 +1,4 @@
-import { type Track } from '../models/track'
+import { type Track } from '../types/track'
 import trackParser from '../parsers/track'
 
 const clientId = process.env.NEXT_PUBLIC_CLIENT_ID

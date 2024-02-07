@@ -1,4 +1,4 @@
-import { Track } from '../models/track'
+import { Track } from '../types/track'
 
 const trackParser = (tracks: Track[]) => {
   const trackbyName = tracks.map((trackData: Track) => {

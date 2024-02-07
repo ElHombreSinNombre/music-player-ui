@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { Track } from '../models/track'
+import { Track } from '../types/track'
 import { searchTrackByArtistId, searchTrackByName } from '../endpoints/track'
 
 interface State {

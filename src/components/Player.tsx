@@ -12,7 +12,7 @@ import VolumeIcon from '../components/Icons/Volume'
 import { useStore } from '../store/player'
 import Input from '../components/Input'
 import ClockIcon from '../components/Icons/Clock'
-import { Track } from '../models/track'
+import { Track } from '../types/track'
 export default function Player() {
   const [reproduced, setReproduced] = useState<string>('00:00')
   const [remainingDuration, setRemainingDuration] = useState<string>('00:00')

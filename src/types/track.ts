@@ -1,4 +1,4 @@
-export interface Track {
+export type Track = {
   id: number
   name: string
   is_playing: boolean

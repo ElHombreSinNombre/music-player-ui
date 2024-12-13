@@ -11,7 +11,8 @@ Technologies
 
 Clone _.env.local.example_ and rename as _.env.local_
 
-- Change **[API KEY](https://developer.spotify.com/documentation/web-api/tutorials/getting-started)**
+- Change **[Spotify Client ID](https://developer.spotify.com/documentation/web-api/tutorials/getting-started)**
+- Change **[Spotify Client Secret](https://developer.spotify.com/documentation/web-api/tutorials/getting-started)**
 
 Run
 

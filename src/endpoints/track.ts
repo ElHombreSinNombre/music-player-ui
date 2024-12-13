@@ -1,8 +1,11 @@
 import { type Track } from '../types/track'
 import trackParser from '../parsers/track'
 
-const clientId = process.env.NEXT_PUBLIC_CLIENT_ID
-const clientSecret = process.env.NEXT_PUBLIC_CLIENT_SECRET
+const {
+  NEXT_PUBLIC_CLIENT_ID: clientId = '',
+  NEXT_PUBLIC_CLIENT_SECRET: clientSecret = ''
+} = process.env
+
 let token: string | null = null
 let offset = 0
 
